@@ -1,0 +1,11 @@
+id,prompt,response_id,response_text,response_source_model,response_source_family,human_score,scale_min,scale_max,criterion
+sc-001,Describe a sunset in one sentence.,r1,The sky turned brilliant shades of orange and pink as the sun dipped below the horizon.,model-x,anthropic,9,1,10,fluency
+sc-002,What is the boiling point of water at sea level?,r2,Water boils at 100 degrees Celsius at sea level.,model-x,anthropic,10,1,10,factuality
+sc-003,Write a one-line joke about computers.,r3,My computer tried to tell me a joke but it kept crashing before the punchline.,model-y,openai,7,1,10,fluency
+sc-004,Explain gravity to a five-year-old.,r4,Gravity is like an invisible hand that pulls everything down to the ground.,model-y,openai,8,1,10,overall
+sc-005,What year did World War II end?,r5,World War II ended in 1942.,model-x,anthropic,2,1,10,factuality
+sc-006,Give advice for starting a vegetable garden.,r6,Start small with a sunny spot good soil and a few easy crops like tomatoes and herbs.,model-y,openai,8,1,10,overall
+sc-007,Describe the taste of coffee.,r7,Coffee tastes.,model-x,anthropic,2,1,10,fluency
+sc-008,What is the chemical symbol for gold?,r8,The chemical symbol for gold is Au.,model-y,openai,10,1,10,factuality
+sc-009,Write a short motivational quote.,r9,Every small step forward is still progress worth celebrating.,model-x,anthropic,9,1,10,overall
+sc-010,Explain what a firewall does in networking.,r10,A firewall monitors and controls incoming and outgoing network traffic based on security rules.,model-y,openai,9,1,10,factuality
