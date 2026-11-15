@@ -123,6 +123,44 @@ class TestLoadPairwiseCsv:
 
         assert "no data rows" in str(exc_info.value)
 
+    def test_bad_metadata_json_raises(self, tmp_path: Path) -> None:
+        csv_text = (
+            "id,prompt,response_a_id,response_a_text,response_b_id,response_b_text,"
+            "human_label,criterion,metadata\n"
+            'p1,Which is better?,a1,Answer A,b1,Answer B,A,overall,"{not json}"\n'
+        )
+        path = write(tmp_path / "pairwise.csv", csv_text)
+
+        with pytest.raises(DatasetLoadError) as exc_info:
+            load_pairwise_csv(path)
+
+        assert "metadata" in str(exc_info.value)
+
+    def test_metadata_not_json_object_raises(self, tmp_path: Path) -> None:
+        csv_text = (
+            "id,prompt,response_a_id,response_a_text,response_b_id,response_b_text,"
+            "human_label,criterion,metadata\n"
+            'p1,Which is better?,a1,Answer A,b1,Answer B,A,overall,"[1, 2]"\n'
+        )
+        path = write(tmp_path / "pairwise.csv", csv_text)
+
+        with pytest.raises(DatasetLoadError) as exc_info:
+            load_pairwise_csv(path)
+
+        assert "metadata" in str(exc_info.value)
+
+    def test_metadata_json_string_parsed(self, tmp_path: Path) -> None:
+        csv_text = (
+            "id,prompt,response_a_id,response_a_text,response_b_id,response_b_text,"
+            "human_label,criterion,metadata\n"
+            'p1,Which is better?,a1,Answer A,b1,Answer B,A,overall,"{""source"": ""synthetic""}"\n'
+        )
+        path = write(tmp_path / "pairwise.csv", csv_text)
+
+        dataset = load_pairwise_csv(path)
+
+        assert dataset.items[0].metadata == {"source": "synthetic"}
+
     def test_unicode_text_preserved(self, tmp_path: Path) -> None:
         csv_text = (
             PAIRWISE_CSV_HEADER
@@ -185,6 +223,37 @@ class TestLoadPairwiseJsonl:
             load_pairwise_jsonl(path)
 
         assert "no data rows" in str(exc_info.value)
+
+    def test_non_object_line_raises_with_row_number(self, tmp_path: Path) -> None:
+        path = write(tmp_path / "pairwise.jsonl", "[1, 2, 3]\n")
+
+        with pytest.raises(DatasetLoadError) as exc_info:
+            load_pairwise_jsonl(path)
+
+        message = str(exc_info.value)
+        assert "row 1" in message
+        assert "JSON object" in message
+
+    def test_empty_string_required_field_raises(self, tmp_path: Path) -> None:
+        row = {
+            "id": "p1",
+            "prompt": "",
+            "response_a_id": "a1",
+            "response_a_text": "Answer A",
+            "response_b_id": "b1",
+            "response_b_text": "Answer B",
+            "human_label": "A",
+            "criterion": "overall",
+        }
+        path = tmp_path / "pairwise.jsonl"
+        path.write_text(json.dumps(row), encoding="utf-8")
+
+        with pytest.raises(DatasetLoadError) as exc_info:
+            load_pairwise_jsonl(path)
+
+        message = str(exc_info.value)
+        assert "row 1" in message
+        assert "prompt" in message
 
     def test_metadata_dict_passthrough(self, tmp_path: Path) -> None:
         row = {
